@@ -1,0 +1,21 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar Time
+
+type IPAddress {
+  uuid: ID!
+  created_at: Time!
+  updated_at: Time!
+  response_code: String!
+  ip_address: String!
+}
+
+type Query {
+  getIPDetails(input: String!): IPAddress!
+}
+
+type Mutations{
+  enqueue(input: String!): IPAddress!
+}
