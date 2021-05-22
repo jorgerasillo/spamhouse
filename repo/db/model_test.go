@@ -1,12 +1,13 @@
-package ip
+package db
 
 import (
 	"testing"
 )
 
 func TestReverse(t *testing.T) {
+	ip, _ := NewIP("1.2.3.4")
 	type args struct {
-		ip string
+		ip IPAddress
 	}
 	tests := []struct {
 		name string
@@ -16,14 +17,14 @@ func TestReverse(t *testing.T) {
 		{
 			name: "valid ip",
 			args: args{
-				ip: "1.2.3.4",
+				ip: ip,
 			},
 			want: "4.3.2.1",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Reverse(tt.args.ip); got != tt.want {
+			if got := tt.args.ip.Reverse(); got != tt.want {
 				t.Errorf("Reverse() = %v, want %v", got, tt.want)
 			}
 		})
