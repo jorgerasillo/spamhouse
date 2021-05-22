@@ -16,10 +16,10 @@
 
 ## Requirements
 
-- Your API must be protected with basic authentication
+- [X] Your API must be protected with basic authentication
   - Username: secureworks
   - Password: supersecret
-- You should have a GraphQL API that is available via a /graphql endpoint
+- [X] You should have a GraphQL API that is available via a /graphql endpoint
   - We suggest using https://gqlgen.com/
     - Mutations
       - enqueue(ip: [“ip1”, “ip2”])
@@ -38,16 +38,12 @@
             - response_code string
             - ip_address string
 
-- You should use SQLite as your database to make this portable
--  Dependencies should be handled using go mod
-- Tests should be written for the key components of the system
-- A README is required and should explain how to develop and run the project as if it
+- [X] You should use SQLite as your database to make this portable
+- [X] Dependencies should be handled using go mod
+- [ ] Tests should be written for the key components of the system
+- [ ] A README is required and should explain how to develop and run the project as if it
 were a new team member working on it
-- The application should be packaged as a Dockerfile, and should accept a PORT
+- [X] The application should be packaged as a Dockerfile, and should accept a PORT
 environment variable to know which port to run on
-- You can use any external libraries you want, but you must document and explain why
+- [ ] You can use any external libraries you want, but you must document and explain why
 you’re using them
-
-## Questions
-
-1. Can the API query multiple IP addresses at a time?

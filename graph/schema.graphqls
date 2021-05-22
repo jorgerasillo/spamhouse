@@ -16,6 +16,6 @@ type Query {
   getIPDetails(input: String!): IPAddress!
 }
 
-type Mutations{
-  enqueue(input: String!): IPAddress!
+type Mutation{
+  enqueue(input: [String!]): IPAddress!
 }

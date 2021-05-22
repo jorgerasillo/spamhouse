@@ -36,6 +36,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -51,8 +52,8 @@ type ComplexityRoot struct {
 		UpdatedAt    func(childComplexity int) int
 	}
 
-	Mutations struct {
-		Enqueue func(childComplexity int, input string) int
+	Mutation struct {
+		Enqueue func(childComplexity int, input []string) int
 	}
 
 	Query struct {
@@ -60,6 +61,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type MutationResolver interface {
+	Enqueue(ctx context.Context, input []string) (*model.IPAddress, error)
+}
 type QueryResolver interface {
 	GetIPDetails(ctx context.Context, input string) (*model.IPAddress, error)
 }
@@ -114,17 +118,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.IPAddress.UpdatedAt(childComplexity), true
 
-	case "Mutations.enqueue":
-		if e.complexity.Mutations.Enqueue == nil {
+	case "Mutation.enqueue":
+		if e.complexity.Mutation.Enqueue == nil {
 			break
 		}
 
-		args, err := ec.field_Mutations_enqueue_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_enqueue_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutations.Enqueue(childComplexity, args["input"].(string)), true
+		return e.complexity.Mutation.Enqueue(childComplexity, args["input"].([]string)), true
 
 	case "Query.getIPDetails":
 		if e.complexity.Query.GetIPDetails == nil {
@@ -155,6 +159,20 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -206,8 +224,8 @@ type Query {
   getIPDetails(input: String!): IPAddress!
 }
 
-type Mutations{
-  enqueue(input: String!): IPAddress!
+type Mutation{
+  enqueue(input: [String!]): IPAddress!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -216,13 +234,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutations_enqueue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_enqueue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 []string
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -474,7 +492,7 @@ func (ec *executionContext) _IPAddress_ip_address(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutations_enqueue(ctx context.Context, field graphql.CollectedField, obj *model.Mutations) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_enqueue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -482,16 +500,16 @@ func (ec *executionContext) _Mutations_enqueue(ctx context.Context, field graphq
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "Mutations",
+		Object:     "Mutation",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutations_enqueue_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_enqueue_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -499,7 +517,7 @@ func (ec *executionContext) _Mutations_enqueue(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Enqueue, nil
+		return ec.resolvers.Mutation().Enqueue(rctx, args["input"].([]string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1771,19 +1789,23 @@ func (ec *executionContext) _IPAddress(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
-var mutationsImplementors = []string{"Mutations"}
+var mutationImplementors = []string{"Mutation"}
 
-func (ec *executionContext) _Mutations(ctx context.Context, sel ast.SelectionSet, obj *model.Mutations) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, mutationsImplementors)
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
 
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Mutations")
+			out.Values[i] = graphql.MarshalString("Mutation")
 		case "enqueue":
-			out.Values[i] = ec._Mutations_enqueue(ctx, field, obj)
+			out.Values[i] = ec._Mutation_enqueue(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2421,6 +2443,42 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
