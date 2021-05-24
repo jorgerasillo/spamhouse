@@ -4,18 +4,24 @@ import (
 	"errors"
 	"net"
 	"strings"
+	"time"
 
 	guuid "github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-var ErrInvalidIPAddress = errors.New("invalid ip address specified")
+var (
+	ErrRecordNotFound   = errors.New("ip not found")
+	ErrInvalidIPAddress = errors.New("invalid ip address specified")
+)
 
 type IPAddress struct {
-	gorm.Model
+	ID           uint `gorm:"primarykey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 	UUID         string `gorm:"not null"`
 	ResponseCode string `gorm:"not null"`
-	IPAddress    string `gorm:"index;not null"`
+	IP           string `gorm:"index;not null"`
 }
 
 func NewIP(ipAddress string) (IPAddress, error) {
@@ -24,19 +30,23 @@ func NewIP(ipAddress string) (IPAddress, error) {
 	}
 
 	return IPAddress{
-		IPAddress: ipAddress,
+		IP: ipAddress,
 	}, nil
 }
 
 func (i IPAddress) Reverse() string {
 	reversedIP := []string{}
-	octets := strings.Split(i.IPAddress, ".")
+	octets := strings.Split(i.IP, ".")
 
 	for i := range octets {
 		octet := octets[len(octets)-1-i]
 		reversedIP = append(reversedIP, octet)
 	}
 	return strings.Join(reversedIP, ".")
+}
+
+func (i IPAddress) String() string {
+	return i.IP
 }
 
 func (i *IPAddress) BeforeCreate(tx *gorm.DB) (err error) {

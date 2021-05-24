@@ -37,14 +37,18 @@ func main() {
 		log.Fatalf("Unable to create repository: %v\n", err)
 	}
 
+	log := logrus.New()
+	setLogLevel(log, cfg.LogLevel)
+
+	// startup queue
+	qChan := make(chan string)
+
 	// create router and attach authz middleware
 	router := chi.NewRouter()
 	router.Use(auth.Middleware())
 
-	log := logrus.New()
-	setLogLevel(log, cfg.LogLevel)
-
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Repository: repo, Logger: log}}))
+	// startup graphql server
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Repository: repo, Logger: log, QChan: qChan}}))
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	router.Handle("/graphql", srv)

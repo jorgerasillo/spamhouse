@@ -12,10 +12,15 @@ type IPAddress {
   ip_address: String!
 }
 
+type IPAddressResult {
+  message: String!
+  node: [IPAddress!]
+}
+
 type Query {
-  getIPDetails(input: String!): IPAddress!
+  getIPDetails(input: String!): IPAddressResult!
 }
 
 type Mutation{
-  enqueue(input: [String!]): IPAddress!
+  enqueue(input: [String!]): IPAddressResult!
 }

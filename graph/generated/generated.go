@@ -52,6 +52,11 @@ type ComplexityRoot struct {
 		UpdatedAt    func(childComplexity int) int
 	}
 
+	IPAddressResult struct {
+		Message func(childComplexity int) int
+		Node    func(childComplexity int) int
+	}
+
 	Mutation struct {
 		Enqueue func(childComplexity int, input []string) int
 	}
@@ -62,10 +67,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Enqueue(ctx context.Context, input []string) (*model.IPAddress, error)
+	Enqueue(ctx context.Context, input []string) (*model.IPAddressResult, error)
 }
 type QueryResolver interface {
-	GetIPDetails(ctx context.Context, input string) (*model.IPAddress, error)
+	GetIPDetails(ctx context.Context, input string) (*model.IPAddressResult, error)
 }
 
 type executableSchema struct {
@@ -117,6 +122,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.IPAddress.UpdatedAt(childComplexity), true
+
+	case "IPAddressResult.message":
+		if e.complexity.IPAddressResult.Message == nil {
+			break
+		}
+
+		return e.complexity.IPAddressResult.Message(childComplexity), true
+
+	case "IPAddressResult.node":
+		if e.complexity.IPAddressResult.Node == nil {
+			break
+		}
+
+		return e.complexity.IPAddressResult.Node(childComplexity), true
 
 	case "Mutation.enqueue":
 		if e.complexity.Mutation.Enqueue == nil {
@@ -220,12 +239,17 @@ type IPAddress {
   ip_address: String!
 }
 
+type IPAddressResult {
+  message: String!
+  node: [IPAddress!]
+}
+
 type Query {
-  getIPDetails(input: String!): IPAddress!
+  getIPDetails(input: String!): IPAddressResult!
 }
 
 type Mutation{
-  enqueue(input: [String!]): IPAddress!
+  enqueue(input: [String!]): IPAddressResult!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -492,6 +516,73 @@ func (ec *executionContext) _IPAddress_ip_address(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _IPAddressResult_message(ctx context.Context, field graphql.CollectedField, obj *model.IPAddressResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "IPAddressResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _IPAddressResult_node(ctx context.Context, field graphql.CollectedField, obj *model.IPAddressResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "IPAddressResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.IPAddress)
+	fc.Result = res
+	return ec.marshalOIPAddress2ᚕᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_enqueue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -529,9 +620,9 @@ func (ec *executionContext) _Mutation_enqueue(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.IPAddress)
+	res := resTmp.(*model.IPAddressResult)
 	fc.Result = res
-	return ec.marshalNIPAddress2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddress(ctx, field.Selections, res)
+	return ec.marshalNIPAddressResult2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getIPDetails(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -571,9 +662,9 @@ func (ec *executionContext) _Query_getIPDetails(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.IPAddress)
+	res := resTmp.(*model.IPAddressResult)
 	fc.Result = res
-	return ec.marshalNIPAddress2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddress(ctx, field.Selections, res)
+	return ec.marshalNIPAddressResult2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1789,6 +1880,35 @@ func (ec *executionContext) _IPAddress(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var iPAddressResultImplementors = []string{"IPAddressResult"}
+
+func (ec *executionContext) _IPAddressResult(ctx context.Context, sel ast.SelectionSet, obj *model.IPAddressResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, iPAddressResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IPAddressResult")
+		case "message":
+			out.Values[i] = ec._IPAddressResult_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "node":
+			out.Values[i] = ec._IPAddressResult_node(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2139,10 +2259,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNIPAddress2githubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddress(ctx context.Context, sel ast.SelectionSet, v model.IPAddress) graphql.Marshaler {
-	return ec._IPAddress(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNIPAddress2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddress(ctx context.Context, sel ast.SelectionSet, v *model.IPAddress) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -2151,6 +2267,20 @@ func (ec *executionContext) marshalNIPAddress2ᚖgithubᚗcomᚋjorgerasilloᚋs
 		return graphql.Null
 	}
 	return ec._IPAddress(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNIPAddressResult2githubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressResult(ctx context.Context, sel ast.SelectionSet, v model.IPAddressResult) graphql.Marshaler {
+	return ec._IPAddressResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIPAddressResult2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressResult(ctx context.Context, sel ast.SelectionSet, v *model.IPAddressResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._IPAddressResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -2434,6 +2564,46 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
+}
+
+func (ec *executionContext) marshalOIPAddress2ᚕᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddressᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.IPAddress) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNIPAddress2ᚖgithubᚗcomᚋjorgerasilloᚋspamhouseᚋgraphᚋmodelᚐIPAddress(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

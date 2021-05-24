@@ -1,14 +1,16 @@
 package repo
 
 import (
-	"github.com/jorgerasillo/spamhouse/graph/model"
+	"errors"
+
+	"github.com/jorgerasillo/spamhouse/repo/db"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	GetIP(ip string) (model.IPAddress, error)
-	AddIP(ip model.IPAddress) (model.IPAddress, error)
-	UpdateIP(ip model.IPAddress) (model.IPAddress, error)
+	GetIP(ip string) (db.IPAddress, error)
+	AddIP(ip db.IPAddress) (db.IPAddress, error)
+	UpdateIP(ip db.IPAddress) (db.IPAddress, error)
 }
 
 type repo struct {
@@ -22,7 +24,7 @@ func New(db *gorm.DB) (Repository, error) {
 	}, nil
 }
 
-func (r repo) AddIP(ip model.IPAddress) (model.IPAddress, error) {
+func (r repo) AddIP(ip db.IPAddress) (db.IPAddress, error) {
 	tx := r.DB.Begin()
 	if err := tx.Create(&ip); err.Error != nil {
 		tx.Rollback()
@@ -36,7 +38,7 @@ func (r repo) AddIP(ip model.IPAddress) (model.IPAddress, error) {
 	return ip, nil
 }
 
-func (r repo) UpdateIP(ip model.IPAddress) (model.IPAddress, error) {
+func (r repo) UpdateIP(ip db.IPAddress) (db.IPAddress, error) {
 	tx := r.DB.Begin()
 	if err := tx.Save(&ip); err.Error != nil {
 		tx.Rollback()
@@ -50,9 +52,12 @@ func (r repo) UpdateIP(ip model.IPAddress) (model.IPAddress, error) {
 	return ip, nil
 }
 
-func (r repo) GetIP(IP string) (model.IPAddress, error) {
-	var ipAddress model.IPAddress
-	if err := r.DB.First(&ipAddress); err.Error != nil {
+func (r repo) GetIP(IP string) (db.IPAddress, error) {
+	var ipAddress db.IPAddress
+	if err := r.DB.Where("ip = ?", IP).First(&ipAddress); err.Error != nil {
+		if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+			return ipAddress, db.ErrRecordNotFound
+		}
 		return ipAddress, err.Error
 	}
 	return ipAddress, nil

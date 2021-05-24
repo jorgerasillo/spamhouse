@@ -9,7 +9,7 @@ PORT=8080
 .PHONY: build
 build:
 	@echo "--> building image: $(NAME)"
-	@docker build -f $(DOCKERFILE) -t $(IMAGE) .
+	@docker build -t $(IMAGE) .
 
 .PHONY: dev
 dev: stop build run
@@ -17,12 +17,12 @@ dev: stop build run
 .PHONY: run
 run: stop
 	@echo "--> starting $(NAME) on port $(PORT)"
-	@PORT=$(PORT) docker-compose -f ci/docker-compose.yml up -d
+	@PORT=$(PORT) docker-compose up spamhouse
 
 .PHONY: stop
 stop:
 	@echo "--> stopping $(NAME)"
-	@PORT=$(PORT) docker-compose -f ci/docker-compose.yml down
+	@PORT=$(PORT) docker-compose down
 
 .PHONY: test
 test:
@@ -32,8 +32,7 @@ test:
 .PHONY: test-integration
 test-integration:
 	@echo "--> starting integration tests for $(NAME)"
-	@docker build -f $(TEST_DOCKERFILE) -t $(IMAGE)-test .
-	@docker-compose -f test/docker-compose-test.yml up
+	@docker-compose up test
 
 .PHONY: delete-db
 delete-integration-db:
@@ -49,6 +48,6 @@ delete-local-db:
 
 .PHONY: db-shell
 db-shell:
-	docker exec -it spamhouse sqlite3 test.db
+	docker exec -it spamhouse sqlite3 spamhouse.db
 
 

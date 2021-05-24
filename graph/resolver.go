@@ -14,4 +14,5 @@ import (
 type Resolver struct {
 	Repository repo.Repository
 	Logger     *logrus.Logger
+	QChan      chan string
 }

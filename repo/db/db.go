@@ -2,19 +2,18 @@ package db
 
 import (
 	"github.com/cenkalti/backoff"
-	"github.com/jorgerasillo/spamhouse/graph/model"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func migrate(db *gorm.DB) error {
-	return db.AutoMigrate(model.IPAddress{})
+	return db.AutoMigrate(IPAddress{})
 }
 
 func GetDB(dataSourceName string) (db *gorm.DB, err error) {
 
 	getDB := func() error {
-		db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(dataSourceName), &gorm.Config{})
 		if err != nil {
 			return err
 		}
