@@ -1,5 +1,7 @@
 # spamhouse
 
+[![CircleCI](https://circleci.com/gh/jorgerasillo/spamhouse/tree/main.svg?style=shield&circle-token=2811c84fa07cbb92e78ffcc1eb54762c6ee8e4ad)](https://circleci.com/gh/jorgerasillo/spamhouse) 
+
 ## Usage
 
 ### Run server
@@ -45,5 +47,17 @@
 were a new team member working on it
 - [X] The application should be packaged as a Dockerfile, and should accept a PORT
 environment variable to know which port to run on
-- [ ] You can use any external libraries you want, but you must document and explain why
+- [X] You can use any external libraries you want, but you must document and explain why
 you’re using them
+
+## External dependencies
+
+- [gorm](https://gorm.io/index.html) - golang orm, used it for migration simplicity mainly.
+- [logrus](https://github.com/sirupsen/logrus) - structured logger utility, better than printf :)
+- [testify](https://github.com/stretchr/testify) - testify, utility for test assertion
+- [backoff](https://github.com/cenkalti/backoff) - backoff utility, used for ensuring db is up before staring up the application
+- [envconfig](https://github.com/cenkalti/backoff) - utility library for environment variable configuration
+- [chi](https://github.com/go-chi/chi) - Added chi for injecting auth middleware
+- [gqlgen](https://github.com/99designs/gqlgen) - graphql, per the requirements suggestion 
+- [uuid](github.com/google/uuid) - generate UUID, used for generating uuid before inserting ip entry into database. See [BeforeCreate](./repo/model/model.go) hook in model
+

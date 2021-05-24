@@ -44,7 +44,7 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 		logEntry.Debug("ip received")
 
 		// query if it exists
-		_, err := r.Repository.GetIP(val.String())
+		oldIP, err := r.Repository.GetIP(val.String())
 		if err != nil {
 			// check if not found
 			if errors.Is(err, db.ErrRecordNotFound) {
@@ -68,9 +68,13 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 
 		}
 
-		logEntry.Debug("record existed, updating entry")
+		oldIP.ResponseCode = val.ResponseCode
+		r.Logger.WithFields(logrus.Fields{
+			"ip":   oldIP.IP,
+			"uuid": oldIP.UUID}).Debug("record existed, updating entry")
+
 		// save if it does
-		ipAddress, err := r.Repository.UpdateIP(*val)
+		ipAddress, err := r.Repository.UpdateIP(oldIP)
 		if err != nil {
 			r.Logger.WithFields(logrus.Fields{
 				"err": err,
