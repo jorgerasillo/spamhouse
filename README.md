@@ -50,6 +50,7 @@ query{
 
 - To extend database access, modify [repo.go](repo/repo.go)
 - To modify the graphql resolvers, modify [gqlgen.yml](gqlgen.yml), after the changes are saved, run `make regenerate`
+- To update auth (e.g. add database user validation) update [auth.go](pkg/middleware/auth/auth.go)
 
 
 ## Requirements
