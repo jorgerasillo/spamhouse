@@ -4,16 +4,52 @@
 
 ## Usage
 
-### Run server
+### Run the server
 
 `make run`
+
+Access the browser UI at [http://localhost:8080](http://localhost:8080), use credentials: secureworks/supersecret to authenticate.
+
+The application port default is 8080, to modify the port the application is running on, modify the `PORT` number in the [Makefile](./Makefile)
+
+#### Example mutation
+
+```
+mutation{
+  enqueue(input: ["1.2.3.3"]){
+    message
+    node{
+      ip_address
+      uuid
+    }
+  }
+}
+```
+
+#### Example query
+
+```
+query{
+  getIPDetails(input: "1.2.3.3"){
+    node{
+      ip_address
+      response_code
+      uuid
+      created_at
+      updated_at
+    }
+  }
+}
+```
 
 ### Test server
 
 `make test`
 
+### Development
 
-## API
+- To extend database access, modify [repo.go](repo/repo.go)
+- To modify the graphql resolvers, modify [gqlgen.yml](gqlgen.yml), after the changes are saved, run `make regenerate`
 
 
 ## Requirements
@@ -43,7 +79,7 @@
 - [X] You should use SQLite as your database to make this portable
 - [X] Dependencies should be handled using go mod
 - [ ] Tests should be written for the key components of the system
-- [ ] A README is required and should explain how to develop and run the project as if it
+- [X] A README is required and should explain how to develop and run the project as if it
 were a new team member working on it
 - [X] The application should be packaged as a Dockerfile, and should accept a PORT
 environment variable to know which port to run on

@@ -24,6 +24,11 @@ stop:
 	@echo "--> stopping $(NAME)"
 	@PORT=$(PORT) docker-compose down
 
+.PHONY: regenerate
+regenerate:
+	@echo "--> regenerating graphql resolvers"
+	@go generate ./...
+	
 .PHONY: test
 test:
 	@echo "--> running go tests for $(NAME)"
