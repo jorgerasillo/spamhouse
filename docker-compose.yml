@@ -10,11 +10,11 @@ services:
     #command: ["run", "main.go"]
     # entrypoint: "ls"
     ports:
-      - ${PORT}:${PORT}
+      - ${PORT:-8080}:${PORT:-8080}
     environment:
       - DATA_SOURCE_NAME=/var/lib/sqlite/data/spamhouse.db
       - LOG_LEVEL=debug
-      - PORT=${PORT}
+      - PORT=${PORT:-8080}
     volumes:
       - data:/var/lib/sqlite/data
     command: 
@@ -25,7 +25,7 @@ services:
     container_name: spamhouse_test
     build: 
       context: .
-      target: final
+      target: buil2
     ports:
       - ${PORT}:${PORT}
     environment: 

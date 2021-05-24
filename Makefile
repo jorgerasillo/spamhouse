@@ -27,12 +27,12 @@ stop:
 .PHONY: test
 test:
 	@echo "--> running go tests for $(NAME)"
-	@go test -v `go test -v ./...`
+	@go test -v ./...
 
 .PHONY: test-integration
 test-integration:
 	@echo "--> starting integration tests for $(NAME)"
-	@docker-compose up test
+	@PORT=$(PORT) docker-compose up test
 
 .PHONY: delete-db
 delete-integration-db:
