@@ -12,35 +12,37 @@ Spamhouse is a graphql server that adds ips to a local storage and detemines whe
 
 `make dev`
 
-Access the browser UI at [http://localhost:8080](http://localhost:8080), Credentials are bootstrapped at application startup. Default credentials are: secureworks/supersecret to authenticate. To modify default credentials, specifying them as environment variables: `DEFAULT_USER` and `DEFAULT_USER_PASSWORD`.
+Access the GraphQL browser UI at [http://localhost:8080](http://localhost:8080). The UI uses basic authentication, and as such the credentials are bootstrapped at application startup. The default credentials are: secureworks/supersecret. To modify default credentials, specify them as environment variables: `DEFAULT_USER` and `DEFAULT_USER_PASSWORD` in [docker-compose.yml](./docker-compose.yml)
 
 The application port default is 8080, to modify the port the application is running on, modify the `PORT` number in the [Makefile](./Makefile)
 
 #### Example mutation
 
+To create a new entry, used the mutation below in the GraphQL UI.
+
 ```
 mutation{
-  enqueue(input: ["1.2.3.3"]){
-    message
-    node{
-      ip_address
-      uuid
-    }
+  enqueue(input: ["1.2.3.4"]){
+    status
+    errors
   }
 }
 ```
 
 #### Example query
 
+To retrieve an existing entry, specify the query as follows:
+
 ```
 query{
-  getIPDetails(input: "1.2.3.3"){
+  getIPDetails(input: "1.2.3.4"){
     node{
       ip_address
       response_code
       uuid
       created_at
       updated_at
+     
     }
   }
 }
@@ -64,13 +66,13 @@ Creates a shell into sqlite3. See instructions for sqlite3 [here](https://www.sq
 
 `make test`
 
-Runs go tests locally, makes uses of build tags to only trigger local tests with `!integration`
+Runs go tests locally. Makes uses of golang build tags to only trigger local tests with `!integration`
 
 ### Test integration
 
 `make test-integration`
 
-Runs integration tests, makes uses of build tags to only trigger integration tests.
+Runs integration tests. Makes uses of build tags to only trigger integration tests.
 
 ### Development
 
