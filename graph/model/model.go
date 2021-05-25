@@ -3,8 +3,8 @@
 package model
 
 type IPAddressResult struct {
-	Message string       `json:"message"`
-	Node    []*IPAddress `json:"node"`
+	Message string     `json:"message"`
+	Node    *IPAddress `json:"node"`
 }
 
 type Result struct {

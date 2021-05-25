@@ -13,6 +13,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Enqueue queues []inputs for processing by:
+// - converting ips to valid ips
+//  - if conversion not possible, returns invalid ip
+// - queues ip for spamhous query in go routine
+// - after query is complete, the ip is sent for creation/update
 func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.Result, error) {
 	errors := make([]*string, 0)
 	for _, i := range input {
@@ -36,6 +41,7 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 	result := model.Result{}
 	result.Status = Success.String()
 	if len(errors) > 0 {
+		r.Logger.Debug("errors found, setting status to fail")
 		result.Status = Failure.String()
 	}
 
@@ -43,6 +49,8 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 	return &result, nil
 }
 
+// GetIPDetails retrieves ip from database if present
+// returns ip not found if not present
 func (r *queryResolver) GetIPDetails(ctx context.Context, input string) (*model.IPAddressResult, error) {
 	ipAddress, err := r.Repository.GetIP(input)
 	if err != nil {
@@ -52,7 +60,6 @@ func (r *queryResolver) GetIPDetails(ctx context.Context, input string) (*model.
 		}, err
 	}
 
-	responses := make([]*model.IPAddress, 0)
 	modelToResponse := model.IPAddress{
 		UUID:         ipAddress.UUID,
 		CreatedAt:    ipAddress.CreatedAt,
@@ -60,10 +67,9 @@ func (r *queryResolver) GetIPDetails(ctx context.Context, input string) (*model.
 		ResponseCode: ipAddress.ResponseCode,
 		IPAddress:    ipAddress.IP,
 	}
-	responses = append(responses, &modelToResponse)
 	return &model.IPAddressResult{
 		Message: "success",
-		Node:    responses,
+		Node:    &modelToResponse,
 	}, nil
 }
 

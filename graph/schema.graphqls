@@ -14,14 +14,17 @@ type IPAddress {
 
 type IPAddressResult {
   message: String!
-  node: [IPAddress!]
+  node: IPAddress!
 }
 
 type Query {
   getIPDetails(input: String!): IPAddressResult!
 }
 
-
+# Result is an encapsulated response for the enqueue method
+# status: Success|Failure
+# errors: If Failure, an array of string errors is returned 
+#         representing the problems found during enqueueing
 type Result {
   status: String!
   errors: [String]

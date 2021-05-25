@@ -101,7 +101,7 @@ Runs integration tests
 
 - [X] You should use SQLite as your database to make this portable
 - [X] Dependencies should be handled using go mod
-- [ ] Tests should be written for the key components of the system
+- [X] Tests should be written for the key components of the system
 - [X] A README is required and should explain how to develop and run the project as if it
 were a new team member working on it
 - [X] The application should be packaged as a Dockerfile, and should accept a PORT
@@ -123,4 +123,3 @@ you’re using them
 ## Additional comments
 
 - Initially I had implemented the queuing process to return the ips added upon enqueueing. See [commit](https://github.com/jorgerasillo/spamhouse/blob/40201f7bb756c409d8a3d9f771c30269943c615f/graph/schema.resolvers.go#L19), however, I recognized that ultimately this was not the best approach since it would dpeend on each ip returning after it had been refreshed.
-

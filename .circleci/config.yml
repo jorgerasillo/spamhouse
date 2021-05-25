@@ -24,6 +24,7 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: make test
+      - run: make test-integration
 
 # Orchestrate our job run sequence
 workflows:

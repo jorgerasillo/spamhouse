@@ -21,7 +21,7 @@ type GraphQLMutation struct {
 type GraphQLQuery struct {
 	Data struct {
 		Getipdetails struct {
-			Node []struct {
+			Node struct {
 				IPAddress    string    `json:"ip_address"`
 				ResponseCode string    `json:"response_code"`
 				UUID         string    `json:"uuid"`
@@ -84,7 +84,7 @@ func parseQueryResponse(t *testing.T, resp *http.Response) GraphQLQuery {
 	var graphResponse GraphQLQuery
 	t.Logf("query response: %v", string(bodyBytes))
 	if err := json.Unmarshal(bodyBytes, &graphResponse); err != nil {
-		t.Fatalf("unable to prase response body")
+		t.Fatalf("unable to parse response body, err: %v", err)
 	}
 	return graphResponse
 }

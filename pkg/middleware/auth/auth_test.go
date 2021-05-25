@@ -131,21 +131,8 @@ func TestEnqueueWithQuery(t *testing.T) {
 
 	// validate response contains nodes
 	gql2 := parseQueryResponse(t, queryResponse)
-	if len(gql2.Data.Getipdetails.Node) < 1 {
-		t.Fatalf("errors in response, response: %v", gql2)
-	}
-
-	var found bool
-	// look for IP in response
-	for _, result := range gql2.Data.Getipdetails.Node {
-		if result.IPAddress == "1.2.3.3." {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		t.Fatalf("IP not found in nodes: %v", gql2.Data.Getipdetails.Node)
+	if gql2.Data.Getipdetails.Node.IPAddress != "1.2.3.3" {
+		t.Fatalf("ip not found, gql2 response: %v", gql2)
 	}
 
 }
