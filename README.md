@@ -60,13 +60,13 @@ Creates a shell into sqlite3. See instructions for sqlite3 [here](https://www.sq
 
 `make test`
 
-Runs go tests locally
+Runs go tests locally, makes uses of build tags to only trigger local tests with `!integration`
 
 ### Test integration
 
 `make test-integration`
 
-Runs integration tests
+Runs integration tests, makes uses of build tags to only trigger integration tests.
 
 ### Development
 
