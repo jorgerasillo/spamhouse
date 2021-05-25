@@ -15,6 +15,8 @@ services:
       - DATA_SOURCE_NAME=/var/lib/sqlite/data/spamhouse.db
       - LOG_LEVEL=debug
       - PORT=${PORT:-8080}
+    networks:
+      - spamhouse-network
     volumes:
       - data:/var/lib/sqlite/data
     command: 
@@ -22,21 +24,26 @@ services:
       - -c
       - /usr/local/bin/spamhouse
   test:
-    container_name: spamhouse_test
-    build: 
-      context: .
-      target: buil2
-    ports:
-      - ${PORT}:${PORT}
+    container_name: spamhouse-test
+    image: spamhouse-test:latest
     environment: 
       - DATA_SOURCE_NAME=/var/lib/sqlite/data/spamhouse.db
       - LOG_LEVEL=debug
-      - PORT=${PORT}
     volumes:
       - data:/var/lib/sqlite/data
+    networks:
+      - spamhouse-network
+    depends_on: 
+      - spamhouse
     command:
-      - go test -v ./...
+      - /bin/sh
+      - -c 
+      - go test --tags=integration -v ./...
 
 volumes:
   data:
     name: spamhouse-data
+
+networks:
+  spamhouse-network:
+    name: spamhouse-network

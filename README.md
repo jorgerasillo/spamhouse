@@ -8,7 +8,7 @@
 
 `make run`
 
-Access the browser UI at [http://localhost:8080](http://localhost:8080), use credentials: secureworks/supersecret to authenticate.
+Access the browser UI at [http://localhost:8080](http://localhost:8080), Credentials are bootstrapped at application startup. Default credentials are: secureworks/supersecret to authenticate. To modify default credentials, specifying them as environment variables: `DEFAULT_USER` and `DEFAULT_USER_PASSWORD`.
 
 The application port default is 8080, to modify the port the application is running on, modify the `PORT` number in the [Makefile](./Makefile)
 
@@ -42,9 +42,31 @@ query{
 }
 ```
 
+### Start server from scratch
+
+`make dev` stop/build/run the appplication
+
+### Stop the server
+
+`make stop`
+
+### Shell into the database
+
+`make db-shell`
+
+Creates a shell into sqlite3. See instructions for sqlite3 [here](https://www.sqlite.org/)
+
 ### Test server
 
 `make test`
+
+Runs go tests locally
+
+### Test integration
+
+`make test-integration`
+
+Runs integration tests
 
 ### Development
 
@@ -97,4 +119,8 @@ you’re using them
 - [chi](https://github.com/go-chi/chi) - Added chi for injecting auth middleware
 - [gqlgen](https://github.com/99designs/gqlgen) - graphql, per the requirements suggestion 
 - [uuid](github.com/google/uuid) - generate UUID, used for generating uuid before inserting ip entry into database. See [BeforeCreate](./repo/model/model.go) hook in model
+
+## Additional comments
+
+- Initially I had implemented the queuing process to return the ips added upon enqueueing. See [commit](https://github.com/jorgerasillo/spamhouse/blob/40201f7bb756c409d8a3d9f771c30269943c615f/graph/schema.resolvers.go#L19), however, I recognized that ultimately this was not the best approach since it would dpeend on each ip returning after it had been refreshed.
 

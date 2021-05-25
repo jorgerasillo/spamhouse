@@ -15,5 +15,21 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: make test
       - run: make build
+  test:
+    docker:
+      - image: circleci/golang:1.16
+    working_directory: /gorc/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: make test
+
+# Orchestrate our job run sequence
+workflows:
+  build_and_test:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test

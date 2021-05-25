@@ -2,6 +2,7 @@ package graph
 
 import (
 	"github.com/jorgerasillo/spamhouse/repo"
+	"github.com/jorgerasillo/spamhouse/repo/db"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,5 +15,5 @@ import (
 type Resolver struct {
 	Repository repo.Repository
 	Logger     *logrus.Logger
-	QChan      chan string
+	QChan      chan *db.IPAddress
 }

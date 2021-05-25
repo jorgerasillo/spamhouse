@@ -72,3 +72,9 @@ func isValidIPV4(ip string) bool {
 
 	return true
 }
+
+type User struct {
+	gorm.Model
+	UserID   string `gorm:"index"`
+	Password string
+}

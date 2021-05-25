@@ -2,21 +2,29 @@ package auth
 
 import (
 	"net/http"
+
+	"github.com/jorgerasillo/spamhouse/repo"
 )
 
-// Middleware decodes the share session cookie and packs the session into context
-func Middleware() func(http.Handler) http.Handler {
+type Authorizer struct {
+	repo repo.Repository
+}
+
+func New(repo repo.Repository) Authorizer {
+	return Authorizer{
+		repo: repo,
+	}
+}
+
+// Middleware extracts the request user and password
+// and returns a 401 if we credentials are not valid
+// or are empty
+func (a Authorizer) Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			userID, password, _ := r.BasicAuth()
 
-			// Allow unauthenticated users in
-			// if !ok {
-			// 	http.Error(w, "Invalid user/password", http.StatusForbidden)
-			// 	return
-			// }
-			// log.Printf("userid: %s, password: %s\n", userID, password)
-			validCreds := validateCredentials(userID, password)
+			validCreds := a.validateCredentials(userID, password)
 			if !validCreds {
 				w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
 				w.WriteHeader(http.StatusUnauthorized)
@@ -29,12 +37,15 @@ func Middleware() func(http.Handler) http.Handler {
 	}
 }
 
-func validateCredentials(userID, password string) bool {
+// validateCredentials returns false:
+// userID or password are empty
+// userID or password does not match configuration
+func (a Authorizer) validateCredentials(userID, password string) bool {
 	if len(userID) == 0 || len(password) == 0 {
 		return false
 	}
 
-	if userID == "secureworks" && password == "supersecret" {
+	if a.repo.IsUserValid(userID, password) {
 		return true
 	}
 

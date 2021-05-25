@@ -1,7 +1,7 @@
 NAME=spamhouse
 IMAGE=$(NAME)
+TEST_IMAGE=$(NAME)-test
 DOCKERFILE=ci/Dockerfile
-TEST_DOCKERFILE=test/Dockerfile
 # This value matches the docker volume created in via docker-compose
 VOL_NAME=data
 PORT=8080
@@ -35,21 +35,12 @@ test:
 	@go test -v ./...
 
 .PHONY: test-integration
-test-integration:
-	@echo "--> starting integration tests for $(NAME)"
-	@PORT=$(PORT) docker-compose up test
+test-integration: stop
+	@echo "--> starting integration tests for $(TEST_IMAGE)"
+	@PORT=$(PORT) docker-compose up -d spamhouse 
+	@docker build --target build1 -t $(TEST_IMAGE) .
+	@PORT=$(PORT) docker-compose up --remove-orphans test
 
-.PHONY: delete-db
-delete-integration-db:
-	@echo "--> Deleting docker volume with db data $(VOL_NAME)"
-	@docker kill $(NAME) || true
-	@docker rm $(NAME) || true
-	@docker volume rm $(VOL_NAME)
-
-.PHONY: delete-local-db
-delete-local-db:
-	@echo "--> Deleting local db data $(NAME).db"
-	@rm ./$(NAME).db || true
 
 .PHONY: db-shell
 db-shell:

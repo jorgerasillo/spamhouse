@@ -21,6 +21,12 @@ type Query {
   getIPDetails(input: String!): IPAddressResult!
 }
 
+
+type Result {
+  status: String!
+  errors: [String]
+}
+
 type Mutation{
-  enqueue(input: [String!]): IPAddressResult!
+  enqueue(input: [String!]): Result!
 }

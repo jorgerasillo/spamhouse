@@ -11,6 +11,7 @@ type Repository interface {
 	GetIP(ip string) (db.IPAddress, error)
 	AddIP(ip db.IPAddress) (db.IPAddress, error)
 	UpdateIP(ip db.IPAddress) (db.IPAddress, error)
+	IsUserValid(userID string, password string) bool
 }
 
 type repo struct {
@@ -61,4 +62,15 @@ func (r repo) GetIP(IP string) (db.IPAddress, error) {
 		return ipAddress, err.Error
 	}
 	return ipAddress, nil
+}
+
+func (r repo) IsUserValid(userID string, password string) bool {
+	var u *db.User
+	if err := r.DB.Where("user_id = ?", userID).Where("password = ?", password).First(&u); err.Error != nil {
+		return false
+	}
+	if u != nil {
+		return true
+	}
+	return false
 }

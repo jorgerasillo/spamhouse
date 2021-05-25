@@ -6,3 +6,8 @@ type IPAddressResult struct {
 	Message string       `json:"message"`
 	Node    []*IPAddress `json:"node"`
 }
+
+type Result struct {
+	Status string    `json:"status"`
+	Errors []*string `json:"errors"`
+}
