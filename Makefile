@@ -35,7 +35,7 @@ test:
 	@go test -v ./...
 
 .PHONY: test-integration
-test-integration: stop
+test-integration: stop build
 	@echo "--> starting integration tests for $(TEST_IMAGE)"
 	@PORT=$(PORT) docker-compose up -d spamhouse 
 	@docker build --target build1 -t $(TEST_IMAGE) .
@@ -44,6 +44,6 @@ test-integration: stop
 
 .PHONY: db-shell
 db-shell:
-	docker exec -it spamhouse sqlite3 spamhouse.db
+	docker exec -it spamhouse sqlite3 /var/lib/sqlite/data/spamhouse.db
 
 
