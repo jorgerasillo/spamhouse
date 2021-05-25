@@ -1,5 +1,3 @@
-// +build integration
-
 package auth
 
 import (
@@ -23,17 +21,15 @@ func TestAuthHandler(t *testing.T) {
 		t.Fatalf("invalid status code: %v, body: %v", r.StatusCode, r.Body)
 	}
 
-	// r3, err := MakeHttpRequest(t, "POST", "http://localhost:8080/", validHeaders, queryPayload)
-
 }
 
-func TestEnqueue(t *testing.T) {
+func TestValidEnqueue(t *testing.T) {
 	validHeaders := map[string]string{
 		"Authorization": "Basic c2VjdXJld29ya3M6c3VwZXJzZWNyZXQ=",
 		"Content-Type":  "application/json",
 	}
 
-	query := `{"query":"mutation{\n  enqueue(input: [\"1.2.3.8888888\"]){\n    status\n errors\n  }\n}"}`
+	query := `{"query":"mutation{\n  enqueue(input: [\"1.2.3.8\"]){\n    status\n errors\n  }\n}"}`
 	body := strings.NewReader(query)
 
 	r2, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/graphql", validHeaders, body)
@@ -56,107 +52,100 @@ func TestEnqueue(t *testing.T) {
 
 }
 
-// func TestInvalidEnqueue(t *testing.T) {
-// 	validHeaders := map[string]string{
-// 		"Authorization": "Basic c2VjdXJld29ya3M6c3VwZXJzZWNyZXQ=",
-// 		"Content-Type":  "application/json",
-// 	}
-// 	enqueuePayload := map[string]string{
-// 		"query": `
-// 	 	  mutation{
-// 			enqueue(input: ["1.2.3.888888"]){
-// 			  status
-// 			  errors
-// 			}
-// 		  }`,
-// 	}
-// 	r2, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/", validHeaders, enqueuePayload)
-// 	if err != nil {
-// 		t.Fatalf("invalid request, err: %v", err)
-// 	}
+func TestInvalidEnqueue(t *testing.T) {
+	validHeaders := map[string]string{
+		"Authorization": "Basic c2VjdXJld29ya3M6c3VwZXJzZWNyZXQ=",
+		"Content-Type":  "application/json",
+	}
+	query := `{"query":"mutation{\n  enqueue(input: [\"1.2.3.88888\"]){\n    status\n errors\n  }\n}"}`
+	body := strings.NewReader(query)
 
-// 	if r2 == nil {
-// 		t.Fatalf("response is nil")
-// 	}
+	r2, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/graphql", validHeaders, body)
+	if err != nil {
+		t.Fatalf("invalid request, err: %v", err)
+	}
 
-// 	if r2.StatusCode != http.StatusOK {
-// 		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
-// 	}
+	if r2 == nil {
+		t.Fatalf("response is nil")
+	}
 
-// 	gql := parseMutationResponse(t, r2)
-// 	if gql.Data.Enqueue.Status != "Failure" {
-// 		t.Fatalf("errors in response, response: %v", gql)
-// 	}
+	if r2.StatusCode != http.StatusOK {
+		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
+	}
 
-// 	if len(gql.Data.Enqueue.Errors) < 1 {
-// 		t.Fatalf("we were expecting errors, but didn't get any: %v", gql)
-// 	}
+	gql := parseMutationResponse(t, r2)
+	if gql.Data.Enqueue.Status != "Failure" {
+		t.Fatalf("errors in response, response: %v", gql)
+	}
 
-// }
+	// ensure errors were returned, since the ip was invalid
+	if len(gql.Data.Enqueue.Errors) < 1 {
+		t.Fatalf("we were expecting errors, but didn't get any: %v", gql)
+	}
 
-// func TestEnqueuWithQuery(t *testing.T) {
-// 	validHeaders := map[string]string{
-// 		"Authorization": "Basic c2VjdXJld29ya3M6c3VwZXJzZWNyZXQ=",
-// 		"Content-Type":  "application/json",
-// 	}
-// 	enqueuePayload := map[string]string{
-// 		"query": `
-// 	 	  mutation{
-// 			enqueue(input: ["1.2.3.8"]){
-// 			  status
-// 			  errors
-// 			}
-// 		  }`,
-// 	}
-// 	r2, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/", validHeaders, enqueuePayload)
-// 	if err != nil {
-// 		t.Fatalf("invalid request, err: %v", err)
-// 	}
+}
 
-// 	if r2 == nil {
-// 		t.Fatalf("response is nil")
-// 	}
+func TestEnqueueWithQuery(t *testing.T) {
+	validHeaders := map[string]string{
+		"Authorization": "Basic c2VjdXJld29ya3M6c3VwZXJzZWNyZXQ=",
+		"Content-Type":  "application/json",
+	}
+	// send mutation
+	query := `{"query":"mutation{\n  enqueue(input: [\"1.2.3.8\"]){\n    status\n errors\n  }\n}"}`
+	body := strings.NewReader(query)
 
-// 	if r2.StatusCode != http.StatusOK {
-// 		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
-// 	}
+	r2, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/graphql", validHeaders, body)
+	if err != nil {
+		t.Fatalf("invalid request, err: %v", err)
+	}
 
-// 	gql := parseMutationResponse(t, r2)
-// 	if gql.Data.Enqueue.Status != "Success" {
-// 		t.Fatalf("errors in response, response: %v", gql)
-// 	}
+	if r2 == nil {
+		t.Fatalf("response is nil")
+	}
 
-// 	queryPayload := map[string]string{
-// 		"query": `
-//             {
-//                 getIPDetails {
-// 					node{
-// 						ip_address
-// 						response_code
-// 						uuid
-// 						created_at
-// 						updated_at
-// 					  }
-//                 }
-//             }
-//         `,
-// 	}
-// 	queryResponse, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/", validHeaders, queryPayload)
-// 	if err != nil {
-// 		t.Fatalf("invalid request, err: %v", err)
-// 	}
+	if r2.StatusCode != http.StatusOK {
+		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
+	}
 
-// 	if queryResponse == nil {
-// 		t.Fatalf("response is nil")
-// 	}
+	// ensure successful mutation response
+	gql := parseMutationResponse(t, r2)
+	if gql.Data.Enqueue.Status != "Success" {
+		t.Fatalf("errors in response, response: %v", gql)
+	}
 
-// 	if queryResponse.StatusCode != http.StatusOK {
-// 		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
-// 	}
+	// send query
+	queryPayload := `{"query":"query{\n  getIPDetails(input: \"1.2.3.3\"){\n    node{\n      ip_address\n      response_code\n      uuid\n      created_at\n      updated_at\n    }\n  }\n}"}`
+	queryBody := strings.NewReader(queryPayload)
+	queryResponse, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/graphql", validHeaders, queryBody)
+	if err != nil {
+		t.Fatalf("invalid request, err: %v", err)
+	}
 
-// 	gql2 := parseQueryResponse(t, queryResponse)
-// 	if len(gql2.Data.Getipdetails.Node) < 1 {
-// 		t.Fatalf("errors in response, response: %v", gql2)
-// 	}
+	if queryResponse == nil {
+		t.Fatalf("response is nil")
+	}
 
-// }
+	if queryResponse.StatusCode != http.StatusOK {
+		t.Fatalf("invalid status code,: %v, body: %v", r2.StatusCode, r2.Body)
+	}
+
+	// validate response contains nodes
+	gql2 := parseQueryResponse(t, queryResponse)
+	if len(gql2.Data.Getipdetails.Node) < 1 {
+		t.Fatalf("errors in response, response: %v", gql2)
+	}
+
+	var found bool
+	// look for IP in response
+	for _, result := range gql2.Data.Getipdetails.Node {
+		if result.IPAddress == "1.2.3.3." {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		t.Fatalf("IP not found in nodes: %v", gql2.Data.Getipdetails.Node)
+	}
+
+}
