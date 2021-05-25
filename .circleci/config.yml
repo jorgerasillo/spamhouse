@@ -19,7 +19,7 @@ jobs:
   test:
     docker:
       - image: circleci/golang:1.16
-    working_directory: /gorc/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - setup_remote_docker
       - checkout
