@@ -115,6 +115,8 @@ func TestEnqueueWithQuery(t *testing.T) {
 		t.Fatalf("errors in response, response: %v", gql)
 	}
 
+	time.Sleep(time.Second * 5)
+
 	// send query
 	queryPayload := `{"query":"query{\n  getIPDetails(input: \"1.2.3.8\"){\n    node{\n      ip_address\n      response_code\n      uuid\n      created_at\n      updated_at\n    }\n  }\n}"}`
 	queryBody := strings.NewReader(queryPayload)
