@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestAuthHandler(t *testing.T) {
@@ -115,6 +116,7 @@ func TestEnqueueWithQuery(t *testing.T) {
 		t.Fatalf("errors in response, response: %v", gql)
 	}
 
+	// allow for record to be saved before querying
 	time.Sleep(time.Second * 5)
 
 	// send query

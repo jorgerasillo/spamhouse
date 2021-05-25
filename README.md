@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/jorgerasillo/spamhouse/tree/main.svg?style=shield&circle-token=2811c84fa07cbb92e78ffcc1eb54762c6ee8e4ad)](https://circleci.com/gh/jorgerasillo/spamhouse) 
 
-Spamhouse is graphql server that adds ips to a local storage and detemines whether the IPs are in spamhous block list.
+Spamhouse is a graphql server that adds ips to a local storage and detemines whether the IPs are in spamhous block list.
 
 ![Spam](./resources/spam.jpeg)
 
