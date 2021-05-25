@@ -116,7 +116,7 @@ func TestEnqueueWithQuery(t *testing.T) {
 	}
 
 	// send query
-	queryPayload := `{"query":"query{\n  getIPDetails(input: \"1.2.3.3\"){\n    node{\n      ip_address\n      response_code\n      uuid\n      created_at\n      updated_at\n    }\n  }\n}"}`
+	queryPayload := `{"query":"query{\n  getIPDetails(input: \"1.2.3.8\"){\n    node{\n      ip_address\n      response_code\n      uuid\n      created_at\n      updated_at\n    }\n  }\n}"}`
 	queryBody := strings.NewReader(queryPayload)
 	queryResponse, err := makeHttpRequest(t, "POST", "http://spamhouse:8080/graphql", validHeaders, queryBody)
 	if err != nil {
@@ -133,7 +133,7 @@ func TestEnqueueWithQuery(t *testing.T) {
 
 	// validate response contains nodes
 	gql2 := parseQueryResponse(t, queryResponse)
-	if gql2.Data.Getipdetails.Node.IPAddress != "1.2.3.3" {
+	if gql2.Data.Getipdetails.Node.IPAddress != "1.2.3.8" {
 		t.Fatalf("ip not found, gql2 response: %v", gql2)
 	}
 
