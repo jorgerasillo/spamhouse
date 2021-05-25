@@ -8,9 +8,9 @@ Spamhouse is a graphql server that adds ips to a local storage and detemines whe
 
 ## Usage
 
-### Run the server
+### Run the server for the first time
 
-`make run`
+`make dev`
 
 Access the browser UI at [http://localhost:8080](http://localhost:8080), Credentials are bootstrapped at application startup. Default credentials are: secureworks/supersecret to authenticate. To modify default credentials, specifying them as environment variables: `DEFAULT_USER` and `DEFAULT_USER_PASSWORD`.
 
@@ -48,7 +48,7 @@ query{
 
 ### Start server from scratch
 
-`make dev` stop/build/run the appplication
+`make run` stops/starts the server without building the appplication
 
 ### Stop the server
 

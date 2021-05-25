@@ -17,8 +17,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const port = "8080"
-
 func main() {
 	// retrieve configuration
 	cfg, err := config.New()
@@ -62,8 +60,8 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.ServerPort)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	log.Printf("connect to http://localhost:%s/ to access the GraphQL UI", cfg.ServerPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, router))
 }
 
 func setLogLevel(log *logrus.Logger, level string) {

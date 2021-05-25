@@ -20,6 +20,13 @@ import (
 // - after query is complete, the ip is sent for creation/update
 func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.Result, error) {
 	errors := make([]*string, 0)
+	result := model.Result{}
+	if len(input) < 1 {
+		msg := "no ips specified"
+		result.Errors = append(result.Errors, &msg)
+		result.Status = EmptyPayload.String()
+		return &result, nil
+	}
 	for _, i := range input {
 		ip, err := db.NewIP(i)
 		r.Logger.WithFields(logrus.Fields{"ip": i, "uuid": ip.UUID}).Debug("processing input")
@@ -38,7 +45,6 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 		go spamhous.Query(&ip, r.QChan)
 	}
 
-	result := model.Result{}
 	result.Status = Success.String()
 	if len(errors) > 0 {
 		r.Logger.Debug("errors found, setting status to fail")
@@ -56,20 +62,13 @@ func (r *queryResolver) GetIPDetails(ctx context.Context, input string) (*model.
 	if err != nil {
 		r.Logger.WithField("err", err).Debug("Error while retrieving ip address")
 		return &model.IPAddressResult{
-			Message: "ip not found",
+			Message: IPNotFound.String(),
 		}, err
 	}
 
-	modelToResponse := model.IPAddress{
-		UUID:         ipAddress.UUID,
-		CreatedAt:    ipAddress.CreatedAt,
-		UpdatedAt:    ipAddress.UpdatedAt,
-		ResponseCode: ipAddress.ResponseCode,
-		IPAddress:    ipAddress.IP,
-	}
 	return &model.IPAddressResult{
-		Message: "success",
-		Node:    &modelToResponse,
+		Message: Success.String(),
+		Node:    modelToResponse(ipAddress),
 	}, nil
 }
 

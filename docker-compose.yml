@@ -14,7 +14,7 @@ services:
     environment:
       - DATA_SOURCE_NAME=/var/lib/sqlite/data/spamhouse.db
       - LOG_LEVEL=debug
-      - PORT=${PORT:-8080}
+      - SERVER_PORT=${PORT:-8080}
     networks:
       - spamhouse-network
     volumes:
