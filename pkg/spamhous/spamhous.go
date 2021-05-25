@@ -6,23 +6,27 @@ import (
 	"net"
 
 	"github.com/jorgerasillo/spamhouse/repo/db"
+	"github.com/sirupsen/logrus"
 )
 
 var ErrNoSuchHost = errors.New("no such host")
 
-func Query(ip *db.IPAddress, qChan chan *db.IPAddress) {
+func Query(ip *db.IPAddress, qChan chan *db.IPAddress, log *logrus.Logger) {
 	spamhousHost := "zen.spamhous.org"
 	spamIP := fmt.Sprintf("%s.%s", ip.Reverse(), spamhousHost)
-	fmt.Printf("looking up host %s\n", spamIP)
+	log.WithField("host", spamIP).Debug("looking up host")
 	res, err := net.LookupHost(spamIP)
 	if err != nil {
-		fmt.Printf("error looking up host: %v, err. Err: %v", err, ErrNoSuchHost)
+		log.WithField("err", err).Error("error looking up host")
 		return
 	}
 
 	if len(res) > 0 {
 		ip.ResponseCode = res[0]
-		fmt.Printf("sending ip over channel: %s with response code: %s\n", ip.IP, ip.ResponseCode)
+		log.WithFields(logrus.Fields{
+			"ip":       ip.IP,
+			"response": ip.ResponseCode,
+		}).Debug("sending ip over channel")
 		qChan <- ip
 	}
 

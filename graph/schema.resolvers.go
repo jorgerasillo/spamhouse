@@ -42,7 +42,7 @@ func (r *mutationResolver) Enqueue(ctx context.Context, input []string) (*model.
 		// query spamhous and send result to channel
 		// processor will pick up changes from the channel and
 		// save in db
-		go spamhous.Query(&ip, r.QChan)
+		go spamhous.Query(&ip, r.QChan, r.Logger)
 	}
 
 	result.Status = Success.String()

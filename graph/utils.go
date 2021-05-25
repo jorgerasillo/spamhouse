@@ -20,8 +20,10 @@ func (s Status) String() string {
 
 func modelToResponse(ip db.IPAddress) *model.IPAddress {
 	return &model.IPAddress{
+		UUID:         ip.UUID,
+		CreatedAt:    ip.CreatedAt,
+		UpdatedAt:    ip.UpdatedAt,
 		ResponseCode: ip.ResponseCode,
 		IPAddress:    ip.IP,
-		UUID:         ip.UUID,
 	}
 }
